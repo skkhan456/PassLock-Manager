@@ -10,7 +10,7 @@ const Manager = () => {
   const eyeRef = useRef();
 
   const token = localStorage.getItem("token");
-  const API_URL = "http://localhost:4000/passwords";
+  const API_URL = "https://pass-lock-manager.vercel.app/passwords";
 
   const getPasswords = async () => {
     try {
