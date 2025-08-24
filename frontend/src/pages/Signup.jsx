@@ -25,7 +25,7 @@ const Signup = () => {
     }
 
     try {
-      const url = "http://localhost:4000/auth/signup";
+      const url = "https://pass-lock-manager.vercel.app/auth/signup";
       const response = await fetch(url, {
         method: "post",
         headers: {
