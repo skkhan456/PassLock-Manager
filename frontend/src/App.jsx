@@ -7,7 +7,7 @@ import Manager from './components/Manager'
 import Footer from './components/Footer'
 
 import Home from "./pages/home.jsx"
-import Login from "./pages/login.jsx"
+import Login from "./pages/Login.jsx"
 import Signup from "./pages/Signup.jsx"
 import { Routes, Route, Navigate } from "react-router-dom";
 import Refreshhandler from './Refreshhandler.jsx';
