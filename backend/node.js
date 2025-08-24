@@ -33,7 +33,9 @@ const authenticate = (req, res, next) => {
         return res.status(401).json({ message: "Invalid token" });
     }
 };
-
+app.get('/',(req,res)=>{
+    res.send("hello world")
+})
 app.use('/auth', Authrouters);
 
 app.get('/passwords', authenticate, async (req, res) => {
