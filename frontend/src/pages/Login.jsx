@@ -25,7 +25,7 @@ const Login = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:4000/auth/login", {
+      const response = await fetch("https://pass-lock-manager.vercel.app/auth/login", {
         method: "post",
         headers: {
           "Content-Type": "application/json"
