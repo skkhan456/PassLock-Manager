@@ -5,11 +5,13 @@ PassOP is a sleek, modern, and fully responsive web application designed for sec
 ![PassOP Mobile View](https://img.shields.io/badge/Responsive-Mobile%20%26%20Desktop-brightgreen)
 ![React](https://img.shields.io/badge/Frontend-React%2019-blue)
 ![TailwindCSS](https://img.shields.io/badge/Styling-Tailwind%20CSS-38bdf8)
+![AES-256 Encryption](https://img.shields.io/badge/Security-AES--256--CBC%20Encrypted-success)
 
 ---
 
 ## ✨ Features
 
+- 🔒 **AES-256 Password Encryption**: User website passwords are stored in the database securely encrypted using AES-256-CBC algorithm.
 - 📱 **Fully Responsive UI**: Mobile-compatible design tailored for smartphones, tablets, and desktop displays.
 - 🔑 **Password Vault**: Store website URL, username, and password entries conveniently.
 - 📋 **One-Click Copy**: Quickly copy usernames, passwords, or website URLs directly to clipboard.
