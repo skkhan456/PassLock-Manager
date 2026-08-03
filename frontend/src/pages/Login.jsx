@@ -54,9 +54,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-2xl p-8 transition-transform transform hover:scale-[1.01]">
-        <h1 className="text-3xl font-extrabold text-center text-blue-800 mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 flex items-center justify-center p-4 py-8">
+      <div className="w-full max-w-md bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-2xl p-6 sm:p-8 transition-transform transform hover:scale-[1.01]">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-center text-blue-800 mb-6">
           Welcome Back
         </h1>
 
