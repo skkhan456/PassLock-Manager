@@ -6,14 +6,17 @@ import "react-toastify/dist/ReactToastify.css";
 const Manager = () => {
   const [passwordArray, setPasswordArray] = useState([]);
   const [form, setForm] = useState({ site: "", username: "", password: "" });
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const passwordRef = useRef();
   const eyeRef = useRef();
 
   const token = localStorage.getItem("token");
-  const API_URL = "https://pass-lock-manager.vercel.app/passwords";
+  const API_URL = import.meta.env.VITE_API_URL || "https://pass-lock-manager.vercel.app/passwords";
 
   const getPasswords = async () => {
     try {
+      setIsLoading(true);
       const res = await fetch(API_URL, {
         headers: { Authorization: token }
       });
@@ -26,6 +29,8 @@ const Manager = () => {
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch passwords");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -47,6 +52,7 @@ const Manager = () => {
     const { site, username, password } = form;
     if (site.length > 3 && username.length > 3 && password.length > 3) {
       try {
+        setIsSaving(true);
         const res = await fetch(API_URL, {
           method: "POST",
           headers: {
@@ -57,7 +63,7 @@ const Manager = () => {
         });
         const data = await res.json();
         if (data.success) {
-          setPasswordArray([...passwordArray, data.data]);
+          setPasswordArray((prev) => [...prev, data.data]);
           setForm({ site: "", username: "", password: "" });
           toast.success("Password saved successfully");
         } else {
@@ -66,30 +72,40 @@ const Manager = () => {
       } catch (err) {
         console.error(err);
         toast.error("Error saving password");
+      } finally {
+        setIsSaving(false);
       }
     } else {
       toast.error("Please fill all fields correctly");
     }
   };
 
-  const editPassword=(item)=>{
+  const editPassword = (item) => {
      deletePassword(item._id);
      setForm({ site: item.site, username: item.username, password: item.password });
-  }
+  };
 
   const deletePassword = async (id) => {
+    // Optimistic UI Update: Delete instantly from local state for 0ms delay!
+    const previousArray = [...passwordArray];
+    setPasswordArray((prev) => prev.filter((item) => item._id !== id));
 
-      try {
-        await fetch(`${API_URL}/${id}`, {
-          method: "DELETE",
-          headers: { Authorization: token }
-        });
-        setPasswordArray(passwordArray.filter((item) => item._id !== id));
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: token }
+      });
+      if (res.ok) {
         toast.success("Password deleted");
-      } catch (err) {
-        console.error(err);
-        toast.error("Error deleting password");
+      } else {
+        setPasswordArray(previousArray);
+        toast.error("Failed to delete password");
       }
+    } catch (err) {
+      console.error(err);
+      setPasswordArray(previousArray);
+      toast.error("Error deleting password");
+    }
   };
 
   const copyText = (text) => {
@@ -159,13 +175,14 @@ const Manager = () => {
           </div>
           <button
             onClick={savePassword}
-            className="flex justify-center items-center gap-2 bg-green-400 hover:bg-green-300 rounded-full px-8 py-2 w-fit border border-green-900"
+            disabled={isSaving}
+            className="flex justify-center items-center gap-2 bg-green-400 hover:bg-green-300 disabled:opacity-50 disabled:cursor-not-allowed rounded-full px-8 py-2 w-fit border border-green-900 transition-all"
           >
             <lord-icon
               src="https://cdn.lordicon.com/jgnvfzqg.json"
               trigger="hover"
             ></lord-icon>
-            Save
+            {isSaving ? "Saving..." : "Save"}
           </button>
         </div>
 
