@@ -36,22 +36,40 @@ const authenticate = (req, res, next) => {
 app.get('/',(req,res)=>{
     res.send("hello world")
 })
+const { encrypt, decrypt } = require("./utils/encryption");
+
 app.use('/auth', Authrouters);
 
 app.get('/passwords', authenticate, async (req, res) => {
-    const passwords = await PasswordModel.find({ user: req.user._id });
-    res.json(passwords);
+    try {
+        const passwords = await PasswordModel.find({ user: req.user._id });
+        const decryptedPasswords = passwords.map((item) => {
+            const doc = item.toObject();
+            doc.password = decrypt(doc.password);
+            return doc;
+        });
+        res.json(decryptedPasswords);
+    } catch (err) {
+        res.status(500).json({ message: "Failed to fetch passwords" });
+    }
 });
 
 app.post('/passwords', authenticate, async (req, res) => {
-    const { site, username, password } = req.body;
-    const newPass = await PasswordModel.create({
-        user: req.user._id,
-        site,
-        username,
-        password
-    });
-    res.json({ success: true, data: newPass });
+    try {
+        const { site, username, password } = req.body;
+        const encryptedPassword = encrypt(password);
+        const newPass = await PasswordModel.create({
+            user: req.user._id,
+            site,
+            username,
+            password: encryptedPassword
+        });
+        const responseData = newPass.toObject();
+        responseData.password = password;
+        res.json({ success: true, data: responseData });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Error saving password" });
+    }
 });
 
 app.delete('/passwords/:id', authenticate, async (req, res) => {
