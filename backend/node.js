@@ -6,19 +6,16 @@ const bodyparser = require('body-parser');
 require('dotenv').config();
 const cors = require('cors');
 const Authrouters = require("./routers/Authrouters");
-const connectDB=require("./models/db"); // mongoose connection
+const connectDB = require("./models/db"); // mongoose connection
 const PasswordModel = require("./models/password.js");
 const jwt = require("jsonwebtoken");
+const { encrypt, decrypt } = require("./utils/encryption");
 
 const app = express();
 app.use(cors());
 app.use(bodyparser.json());
 
-connectDB().then(() => {
-  app.listen(4000, () => console.log('Server running on port 4000'));
-});
-
-const port = 4000;
+const PORT = process.env.PORT || 4000;
 
 // Middleware to protect routes
 const authenticate = (req, res, next) => {
@@ -33,13 +30,14 @@ const authenticate = (req, res, next) => {
         return res.status(401).json({ message: "Invalid token" });
     }
 };
-app.get('/',(req,res)=>{
-    res.send("hello world")
-})
-const { encrypt, decrypt } = require("./utils/encryption");
+
+app.get('/', (req, res) => {
+    res.send("PassLock API is running");
+});
 
 app.use('/auth', Authrouters);
 
+// Get all stored passwords for the authenticated user (decrypts passwords before returning)
 app.get('/passwords', authenticate, async (req, res) => {
     try {
         const passwords = await PasswordModel.find({ user: req.user._id });
@@ -54,6 +52,7 @@ app.get('/passwords', authenticate, async (req, res) => {
     }
 });
 
+// Save a new password for the authenticated user (encrypts password before storing in MongoDB)
 app.post('/passwords', authenticate, async (req, res) => {
     try {
         const { site, username, password } = req.body;
@@ -72,9 +71,17 @@ app.post('/passwords', authenticate, async (req, res) => {
     }
 });
 
+// Delete a stored password by ID for the authenticated user
 app.delete('/passwords/:id', authenticate, async (req, res) => {
-    await PasswordModel.deleteOne({ _id: req.params.id, user: req.user._id });
-    res.json({ success: true });
+    try {
+        await PasswordModel.deleteOne({ _id: req.params.id, user: req.user._id });
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Error deleting password" });
+    }
 });
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
+connectDB().then(() => {
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+});
+
